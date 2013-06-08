@@ -30,6 +30,10 @@ extern "C" {
  * buffer size in frames, the number of input and output channels, as well as
  * input and output buffers whose size must be the number of channels times
  * the number of frames per buffer.
+ *
+ * This function will be invoked on a dedicated audio thread, and so any data in
+ * the context that may be modified concurrently must be protected (e.g., by gcc
+ * atomics) to prevent race conditions.
  */
 typedef void (*opensl_process_t)
     (void *context, int sample_rate, int buffer_frames,
@@ -51,9 +55,7 @@ typedef struct _opensl_stream OPENSL_STREAM;
  * The buffer size is the buffer size (in frames) at which OpenSL will operate.
  * Ideally, it should be the native buffer size of OpenSL.  As of Android 4.2,
  * the AudioManager class in Java offers a method that will yield the
- * recommended sample rate and buffer size for OpenSL. Pd for Android comes
- * with a utility class, AudioParameters.java, that looks up this property if
- * available and provides a reasonable default otherwise.
+ * recommended sample rate and buffer size for OpenSL.
  *
  * If you don't know the native buffer size, or if your processing callback
  * cannot operate at the native buffer size, then you should use a smallish
