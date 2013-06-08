@@ -152,7 +152,7 @@ static void playerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
   if (p->readIndex >= 0) {  // Synthesize audio with input if available.
     int margin = __sync_fetch_and_or(&p->inputIndex, 0) - p->readIndex;
     if (margin <= p->callbackBufferFrames) {
-      LOGI("Low safety margin: %d", margin);
+      LOGW("Low safety margin: %d", margin);
     }
     p->callback(p->context, p->sampleRate, p->callbackBufferFrames,
         p->inputChannels, p->inputBuffer +
