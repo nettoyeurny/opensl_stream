@@ -20,11 +20,10 @@
 #include "opensl_stream.h"
 
 #include <android/log.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/resource.h>
 #include <sys/time.h>
-#include <unistd.h>
 
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
@@ -88,8 +87,8 @@ struct _opensl_stream {
 };
 
 static int nextIndex(int index, int increment) {
-  int next = index + increment;
-  return (next >= 0) ? next : 0;  // Handle potential integer overflow.
+  // Handle potential integer overflow.
+  return (INT_MAX - index >= increment) ? index + increment : 0;
 }
 
 static void updateIntervals(
@@ -161,7 +160,7 @@ static void playerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
   if (p->readIndex >= 0) {  // Synthesize audio with input if available.
     int margin = __sync_fetch_and_or(&p->inputIndex, 0) - p->readIndex;
     if (margin < p->lowestMargin &&
-        // Ignore potentially bogus value when indices roll over at MAXINT.
+        // Ignore potentially bogus value when indices roll over at INT_MAX.
         -p->inputBufferFrames < margin) {
       p->lowestMargin = margin;
     }
