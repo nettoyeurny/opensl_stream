@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef __OPENSL_IO_HPP__
-#define __OPENSL_IO_HPP__
+#ifndef __OPENSL_STREAM_H__
+#define __OPENSL_STREAM_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,4 +99,4 @@ void opensl_pause(OPENSL_STREAM *p);
 };
 #endif
 
-#endif // #ifndef __OPENSL_IO_HPP__
+#endif // #ifndef __OPENSL_STREAM_H__
