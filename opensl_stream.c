@@ -157,6 +157,8 @@ static void playerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
   }
   short *currentOutputBuffer = p->outputBuffer +
       (p->outputIndex % p->outputBufferFrames) * p->outputChannels;
+  memset(currentOutputBuffer, 0,
+      p->callbackBufferFrames * p->outputChannels * sizeof(short));
   if (p->readIndex >= 0) {  // Synthesize audio with input if available.
     int margin = __sync_fetch_and_or(&p->inputIndex, 0) - p->readIndex;
     if (margin < p->lowestMargin &&
