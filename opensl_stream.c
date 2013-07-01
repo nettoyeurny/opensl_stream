@@ -498,4 +498,14 @@ void opensl_pause(OPENSL_STREAM *p) {
   LOGI("Input buffer size estimate: %d", p->inputOffset);
   LOGI("Output buffer size estimate: %d", p->outputOffset);
   LOGI("Lowest margin: %d", p->lowestMargin);
+
+  // Note: The current documentation of OpenSL explicitly doesn't rule out that
+  // buffer queue callbacks may be invoked after the buffer queue has been
+  // stopped.  For the time being, we'll just sleep for a tenth of a second
+  // and hope that that's enough to make sure that this stream will truly be
+  // paused when we exit this method.
+  //
+  // TODO: Determine whether this can actually happen and handle it in a way
+  // that's provably correct.
+  usleep(100000);
 }
