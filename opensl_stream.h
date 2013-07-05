@@ -28,7 +28,7 @@ extern "C" {
  * Processing callback; takes a processing context (which is just a pointer to
  * whatever data you want to pass to the callback), the sample rate, the
  * buffer size in frames, the number of input and output channels, as well as
- * input and output buffers whose size must be the number of channels times
+ * input and output buffers whose size will be the number of channels times
  * the number of frames per buffer.
  *
  * This function will be invoked on a dedicated audio thread, and so any data in
