@@ -43,7 +43,6 @@ typedef void (*opensl_process_t)
 /*
  * Abstract data type for streaming audio with OpenSL.
  */
-struct _opensl_stream;
 typedef struct _opensl_stream OPENSL_STREAM;
 
 /*
