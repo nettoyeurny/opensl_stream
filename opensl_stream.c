@@ -113,7 +113,7 @@ static void updateIntervals(
         }
       }
       *previousIndex = index;
-      __sync_bool_compare_and_swap(intervals, *intervals, *intervals + 1);
+      __sync_add_and_fetch(intervals, 1);
     }
   }
   previousTime->tv_sec = t.tv_sec;
@@ -149,10 +149,10 @@ static void playerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     }
     if (p->readIndex < 0 &&
         p->outputIntervals == STARTUP_INTERVALS &&
-        __sync_fetch_and_or(&p->inputIntervals, 0) == STARTUP_INTERVALS) {
+        __sync_or_and_fetch(&p->inputIntervals, 0) == STARTUP_INTERVALS) {
       int offset = p->inputOffset + p->outputOffset +
           OUTPUT_BUFFERS * p->callbackBufferFrames;
-      p->readIndex = __sync_fetch_and_or(&p->inputIndex, 0) - offset;
+      p->readIndex = __sync_or_and_fetch(&p->inputIndex, 0) - offset;
     }
   }
   short *currentOutputBuffer = p->outputBuffer +
@@ -160,7 +160,7 @@ static void playerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
   memset(currentOutputBuffer, 0,
       p->callbackBufferFrames * p->outputChannels * sizeof(short));
   if (p->readIndex >= 0) {  // Synthesize audio with input if available.
-    int margin = __sync_fetch_and_or(&p->inputIndex, 0) - p->readIndex;
+    int margin = __sync_or_and_fetch(&p->inputIndex, 0) - p->readIndex;
     if (margin < p->lowestMargin &&
         // Ignore potentially bogus value when indices roll over at INT_MAX.
         -p->inputBufferFrames < margin) {
