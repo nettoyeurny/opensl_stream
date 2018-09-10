@@ -465,7 +465,7 @@ int opensl_start(OPENSL_STREAM *p) {
     }
   }
   if (p->recorderRecord) {
-    memset(p->inputBuffer, 0, sizeof(p->inputBuffer));
+    memset(p->inputBuffer, 0, (size_t) (p->inputBufferFrames * p->inputChannels));
     LOGI("Starting recorder queue.");
     recorderCallback(p->recorderBufferQueue, p);
     if ((*p->recorderRecord)->SetRecordState(p->recorderRecord,
