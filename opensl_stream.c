@@ -213,8 +213,9 @@ static SLuint32 convertSampleRate(SLuint32 sr) {
     return SL_SAMPLINGRATE_96;
   case 192000:
     return SL_SAMPLINGRATE_192;
+      default:break;
   }
-  return -1;
+  return UINT_MAX;
 }
 
 static SLresult openSLCreateEngine(OPENSL_STREAM *p) {
@@ -248,8 +249,8 @@ static SLresult openSLRecOpen(OPENSL_STREAM *p, SLuint32 sr) {
   SLDataLocator_AndroidSimpleBufferQueue loc_bq =
       {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 1};
   SLDataFormat_PCM format_pcm =
-      {SL_DATAFORMAT_PCM, p->inputChannels, sr, SL_PCMSAMPLEFORMAT_FIXED_16,
-       SL_PCMSAMPLEFORMAT_FIXED_16, mics, SL_BYTEORDER_LITTLEENDIAN};
+      {SL_DATAFORMAT_PCM, (SLuint32) p->inputChannels, sr, SL_PCMSAMPLEFORMAT_FIXED_16,
+       SL_PCMSAMPLEFORMAT_FIXED_16, (SLuint32) mics, SL_BYTEORDER_LITTLEENDIAN};
   SLDataSink audioSnk = {&loc_bq, &format_pcm};  // sink: buffer queue
 
   // create audio recorder (requires the RECORD_AUDIO permission)
@@ -289,9 +290,9 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p, SLuint32 sr) {
     speakers = SL_SPEAKER_FRONT_CENTER;
   }
   SLDataFormat_PCM format_pcm =
-      {SL_DATAFORMAT_PCM, p->outputChannels, sr,
+      {SL_DATAFORMAT_PCM, (SLuint32) p->outputChannels, sr,
        SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
-       speakers, SL_BYTEORDER_LITTLEENDIAN};
+       (SLuint32) speakers, SL_BYTEORDER_LITTLEENDIAN};
   SLDataLocator_AndroidSimpleBufferQueue loc_bufq =
       {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, OUTPUT_BUFFERS};
   SLDataSource audioSrc = {&loc_bufq, &format_pcm};  // source: buffer queue
@@ -360,8 +361,8 @@ OPENSL_STREAM *opensl_open(
     return NULL;
   }
 
-  SLuint32 srmillihz = convertSampleRate(sampleRate);
-  if (srmillihz < 0) {
+  SLuint32 srmillihz = convertSampleRate((SLuint32) sampleRate);
+  if (srmillihz == UINT_MAX) {
     return NULL;
   }
 
@@ -397,9 +398,9 @@ OPENSL_STREAM *opensl_open(
   if (inChans) {
     int inBufSize = p->inputBufferFrames * inChans;
     if (!(openSLRecOpen(p, srmillihz) == SL_RESULT_SUCCESS &&
-        (p->inputBuffer = (short *) calloc(inBufSize, sizeof(short))) &&
-        (p->dummyBuffer = (short *) calloc(callbackBufferFrames * inChans,
-             sizeof(short))))) {
+          (p->inputBuffer = (short *) calloc((size_t) inBufSize, sizeof(short))) &&
+          (p->dummyBuffer = (short *) calloc((size_t) (callbackBufferFrames * inChans),
+                                             sizeof(short))))) {
       opensl_close(p);
       return NULL;
     }
@@ -408,7 +409,7 @@ OPENSL_STREAM *opensl_open(
   if (outChans) {
     int outBufSize = p->outputBufferFrames * outChans;
     if (!(openSLPlayOpen(p, srmillihz) == SL_RESULT_SUCCESS &&
-        (p->outputBuffer = (short *) calloc(outBufSize, sizeof(short))))) {
+        (p->outputBuffer = (short *) calloc((size_t) outBufSize, sizeof(short))))) {
       opensl_close(p);
       return NULL;
     }
