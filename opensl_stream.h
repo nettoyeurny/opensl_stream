@@ -36,9 +36,9 @@ extern "C" {
  * atomics) to prevent race conditions.
  */
 typedef void (*opensl_process_t)
-    (void *context, int sample_rate, int buffer_frames,
-     int input_channels, const short *input_buffer,
-     int output_channels, short *output_buffer);
+        (void *context, int sample_rate, int buffer_frames,
+         int input_channels, const short *input_buffer,
+         int output_channels, short *output_buffer);
 
 /*
  * Abstract data type for streaming audio with OpenSL.
@@ -60,15 +60,15 @@ typedef struct _opensl_stream OPENSL_STREAM;
  * cannot operate at the native buffer size, then you should use a smallish
  * buffer size, e.g., 64 frames. Somewhat surprisingly, large buffers will not
  * improve stability.
- * 
+ *
  * For the time being, the number of input and output channels must be 0, 1,
  * or 2; at least one of the channel numbers must be positive.
  *
  * Returns NULL on failure.
  */
 OPENSL_STREAM *opensl_open(
-    int sample_rate, int input_channels, int output_channels,
-    int callback_buffer_size, opensl_process_t proc, void *context);
+        int sample_rate, int input_channels, int output_channels,
+        int callback_buffer_size, opensl_process_t proc, void *context);
 
 /*
  * Stops playback and frees all resources associated with the given stream,
