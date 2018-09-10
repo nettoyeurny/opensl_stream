@@ -19,6 +19,9 @@
 
 #include "opensl_stream.h"
 
+#include <time.h>
+#include <unistd.h>
+
 #include <android/log.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -27,6 +30,7 @@
 
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+
 
 #define LOGI(...) \
   __android_log_print(ANDROID_LOG_INFO, "opensl_stream", __VA_ARGS__)
