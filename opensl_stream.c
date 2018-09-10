@@ -231,11 +231,9 @@ static SLresult openSLRecOpen(OPENSL_STREAM *p, SLuint32 sr) {
     } else {
         mics = SL_SPEAKER_FRONT_CENTER;
     }
-    SLDataLocator_AndroidSimpleBufferQueue loc_bq =
-            {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 1};
-    SLDataFormat_PCM format_pcm =
-            {SL_DATAFORMAT_PCM, (SLuint32) p->inputChannels, sr, SL_PCMSAMPLEFORMAT_FIXED_16,
-             SL_PCMSAMPLEFORMAT_FIXED_16, (SLuint32) mics, SL_BYTEORDER_LITTLEENDIAN};
+    SLDataLocator_AndroidSimpleBufferQueue loc_bq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 1};
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, (SLuint32) p->inputChannels, sr, SL_PCMSAMPLEFORMAT_FIXED_16,
+                                   SL_PCMSAMPLEFORMAT_FIXED_16, (SLuint32) mics, SL_BYTEORDER_LITTLEENDIAN};
     SLDataSink audioSnk = {&loc_bq, &format_pcm};  // sink: buffer queue
 
     // create audio recorder (requires the RECORD_AUDIO permission)
@@ -274,12 +272,10 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p, SLuint32 sr) {
     } else {
         speakers = SL_SPEAKER_FRONT_CENTER;
     }
-    SLDataFormat_PCM format_pcm =
-            {SL_DATAFORMAT_PCM, (SLuint32) p->outputChannels, sr,
-             SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
-             (SLuint32) speakers, SL_BYTEORDER_LITTLEENDIAN};
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq =
-            {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, OUTPUT_BUFFERS};
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, (SLuint32) p->outputChannels, sr,
+                                   SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
+                                   (SLuint32) speakers, SL_BYTEORDER_LITTLEENDIAN};
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, OUTPUT_BUFFERS};
     SLDataSource audioSrc = {&loc_bufq, &format_pcm};  // source: buffer queue
 
     const SLInterfaceID mixIds[] = {SL_IID_VOLUME};
@@ -288,12 +284,10 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p, SLuint32 sr) {
             p->engineEngine, &p->outputMixObject, 1, mixIds, mixReq);
     if (result != SL_RESULT_SUCCESS) return result;
 
-    result = (*p->outputMixObject)->Realize(
-            p->outputMixObject, SL_BOOLEAN_FALSE);
+    result = (*p->outputMixObject)->Realize(p->outputMixObject, SL_BOOLEAN_FALSE);
     if (result != SL_RESULT_SUCCESS) return result;
 
-    SLDataLocator_OutputMix loc_outmix =
-            {SL_DATALOCATOR_OUTPUTMIX, p->outputMixObject};
+    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, p->outputMixObject};
     SLDataSink audioSnk = {&loc_outmix, NULL};  // sink: mixer (volume control)
 
     // create audio player
@@ -336,9 +330,8 @@ static void openSLDestroyEngine(OPENSL_STREAM *p) {
     }
 }
 
-OPENSL_STREAM *opensl_open(
-        int sampleRate, int inChans, int outChans, int callbackBufferFrames,
-        opensl_process_t proc, void *context) {
+OPENSL_STREAM *opensl_open(int sampleRate, int inChans, int outChans, int callbackBufferFrames,
+                           opensl_process_t proc, void *context) {
     if (!proc) {
         return NULL;
     }
@@ -384,8 +377,7 @@ OPENSL_STREAM *opensl_open(
         int inBufSize = p->inputBufferFrames * inChans;
         if (!(openSLRecOpen(p, srmillihz) == SL_RESULT_SUCCESS &&
               (p->inputBuffer = (short *) calloc((size_t) inBufSize, sizeof(short))) &&
-              (p->dummyBuffer = (short *) calloc((size_t) (callbackBufferFrames * inChans),
-                                                 sizeof(short))))) {
+              (p->dummyBuffer = (short *) calloc((size_t) (callbackBufferFrames * inChans), sizeof(short))))) {
             opensl_close(p);
             return NULL;
         }
@@ -407,7 +399,6 @@ OPENSL_STREAM *opensl_open(
 }
 
 void opensl_close(OPENSL_STREAM *p) {
-    opensl_pause(p);
     openSLDestroyEngine(p);
     free(p->inputBuffer);
     free(p->outputBuffer);
@@ -448,8 +439,7 @@ int opensl_start(OPENSL_STREAM *p) {
         for (i = 0; i < OUTPUT_BUFFERS; ++i) {
             playerCallback(p->playerBufferQueue, p);
         }
-        if ((*p->playerPlay)->SetPlayState(p->playerPlay,
-                                           SL_PLAYSTATE_PLAYING) != SL_RESULT_SUCCESS) {
+        if ((*p->playerPlay)->SetPlayState(p->playerPlay, SL_PLAYSTATE_PLAYING) != SL_RESULT_SUCCESS) {
             opensl_pause(p);
             return -1;
         }
@@ -458,8 +448,7 @@ int opensl_start(OPENSL_STREAM *p) {
         memset(p->inputBuffer, 0, (size_t) (p->inputBufferFrames * p->inputChannels));
         LOGI("Starting recorder queue.");
         recorderCallback(p->recorderBufferQueue, p);
-        if ((*p->recorderRecord)->SetRecordState(p->recorderRecord,
-                                                 SL_RECORDSTATE_RECORDING) != SL_RESULT_SUCCESS) {
+        if ((*p->recorderRecord)->SetRecordState(p->recorderRecord, SL_RECORDSTATE_RECORDING) != SL_RESULT_SUCCESS) {
             opensl_pause(p);
             return -1;
         }
@@ -474,13 +463,11 @@ void opensl_pause(OPENSL_STREAM *p) {
         return;
     }
     if (p->playerPlay) {
-        (*p->playerPlay)->SetPlayState(p->playerPlay,
-                                       SL_PLAYSTATE_STOPPED);
+        (*p->playerPlay)->SetPlayState(p->playerPlay, SL_PLAYSTATE_STOPPED);
         (*p->playerBufferQueue)->Clear(p->playerBufferQueue);
     }
     if (p->recorderRecord) {
-        (*p->recorderRecord)->SetRecordState(p->recorderRecord,
-                                             SL_RECORDSTATE_STOPPED);
+        (*p->recorderRecord)->SetRecordState(p->recorderRecord, SL_RECORDSTATE_STOPPED);
         (*p->recorderBufferQueue)->Clear(p->recorderBufferQueue);
     }
     p->isRunning = 0;
